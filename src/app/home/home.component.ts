@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Observable, Subscription, interval } from 'rxjs';
+import { Observable, Subscription, filter, interval, map } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       let count = 0;
       setInterval(() => {
         observer.next(count);
-        if (count == 5) {
+        if (count == 6) {
           //zamien na 2
           observer.complete();
         }
@@ -30,11 +30,18 @@ export class HomeComponent implements OnInit, OnDestroy {
       }, 1000);
     });
 
-    this.subscription = customIntervalObservable.subscribe({
-      next: (data) => console.log(data),
-      error: (error) => alert(error.message),
-      complete: () => console.log('Completed!'),
-    });
+    this.subscription = customIntervalObservable
+      .pipe(
+        filter((data: number) => {
+          return data > 0;
+        }),
+        map((data: number) => 'Round: ' + (data + 1))
+      ) // tutaj dodajemy 1
+      .subscribe({
+        next: (data) => console.log(data),
+        error: (error) => alert(error.message),
+        complete: () => console.log('Completed!'),
+      });
   }
 
   ngOnDestroy(): void {
